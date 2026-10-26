@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Admin — DentalAge AI{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg-deep:#050a0f; --bg-panel:#07101a; --bg-card:#0c1520;
+      --border:#1a3a5c; --border-glow:#1e6fa8;
+      --accent:#00d4ff; --accent2:#00ff88; --purple:#b06cff;
+      --text-main:#c8e6f7; --text-muted:#5a8aaa;
+      --danger:#ff4e6a; --warning:#ffb347;
+      --sidebar-w:240px;
+      --font-head:'Rajdhani',sans-serif;
+      --font-mono:'Share Tech Mono',monospace;
+      --font-body:'Exo 2',sans-serif;
+    }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    body { background:var(--bg-deep); color:var(--text-main); font-family:var(--font-body); min-height:100vh; display:flex; }
+
+    /* xray bg */
+    body::before {
+      content:''; position:fixed; inset:0; z-index:0;
+      background:
+        radial-gradient(ellipse 60% 50% at 80% 20%, rgba(160,80,255,.05) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at 20% 80%, rgba(0,180,255,.06) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cellipse cx='150' cy='350' rx='25' ry='55' fill='none' stroke='%2300aaff' stroke-width='.35' opacity='.08'/%3E%3Cellipse cx='200' cy='345' rx='20' ry='58' fill='none' stroke='%2300aaff' stroke-width='.35' opacity='.08'/%3E%3Cellipse cx='248' cy='336' rx='18' ry='62' fill='none' stroke='%2300aaff' stroke-width='.35' opacity='.07'/%3E%3Cellipse cx='294' cy='332' rx='17' ry='64' fill='none' stroke='%2300aaff' stroke-width='.35' opacity='.07'/%3E%3Cellipse cx='340' cy='332' rx='17' ry='64' fill='none' stroke='%2300aaff' stroke-width='.35' opacity='.07'/%3E%3Cellipse cx='386' cy='336' rx='18' ry='62' fill='none' stroke='%2300aaff' stroke-width='.35' opacity='.07'/%3E%3Cellipse cx='432' cy='345' rx='20' ry='58' fill='none' stroke='%2300aaff' stroke-width='.35' opacity='.08'/%3E%3Cellipse cx='480' cy='350' rx='25' ry='55' fill='none' stroke='%2300aaff' stroke-width='.35' opacity='.08'/%3E%3Cpath d='M115,320 Q297,450 477,320' fill='none' stroke='%2300d4ff' stroke-width='.5' opacity='.07'/%3E%3C/svg%3E") center/cover;
+      pointer-events:none;
+    }
+    body::after {
+      content:''; position:fixed; inset:0; z-index:1;
+      background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.06) 3px,rgba(0,0,0,.06) 4px);
+      pointer-events:none;
+    }
+
+    /* sidebar */
+    .sidebar {
+      width:var(--sidebar-w); min-height:100vh; position:fixed; top:0; left:0; z-index:50;
+      background:rgba(5,10,15,.96); backdrop-filter:blur(12px);
+      border-right:1px solid var(--border);
+      display:flex; flex-direction:column;
+      box-shadow:2px 0 30px rgba(0,0,0,.5);
+    }
+    .sidebar-brand {
+      padding:1.4rem 1.2rem;
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:center; gap:.7rem;
+    }
+    .sidebar-brand .icon {
+      width:38px; height:38px; border-radius:9px;
+      background:linear-gradient(135deg,rgba(160,80,255,.15),rgba(80,20,160,.15));
+      border:1px solid #7030d0;
+      display:flex; align-items:center; justify-content:center; font-size:1.1rem;
+    }
+    .sidebar-brand .name {
+      font-family:var(--font-head); font-size:1.05rem; font-weight:700;
+      letter-spacing:.07em; color:var(--purple);
+    }
+    .sidebar-brand .role {
+      font-family:var(--font-mono); font-size:.58rem; letter-spacing:.12em;
+      color:var(--text-muted); display:block; margin-top:-2px;
+    }
+    .nav-section {
+      padding:.8rem 1rem .3rem;
+      font-family:var(--font-mono); font-size:.6rem; letter-spacing:.15em;
+      color:var(--text-muted);
+    }
+    .sidebar nav a {
+      display:flex; align-items:center; gap:.7rem;
+      padding:.6rem 1.2rem;
+      font-family:var(--font-head); font-size:.88rem; font-weight:600;
+      letter-spacing:.05em; color:var(--text-muted);
+      text-decoration:none; border-left:3px solid transparent;
+      transition:all .18s;
+    }
+    .sidebar nav a:hover, .sidebar nav a.active {
+      color:var(--purple); border-left-color:var(--purple);
+      background:rgba(160,80,255,.06);
+    }
+    .sidebar-footer {
+      margin-top:auto; padding:1rem 1.2rem;
+      border-top:1px solid var(--border);
+    }
+    .sidebar-footer a {
+      display:flex; align-items:center; gap:.6rem;
+      font-family:var(--font-mono); font-size:.75rem; letter-spacing:.07em;
+      color:var(--danger); text-decoration:none;
+      transition:color .18s;
+    }
+    .sidebar-footer a:hover { color:#ff7a8a; }
+
+    /* main area */
+    .main-wrap {
+      margin-left:var(--sidebar-w); flex:1;
+      position:relative; z-index:2;
+      padding:2rem;
+    }
+    .topbar {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:2rem; padding-bottom:1rem;
+      border-bottom:1px solid var(--border);
+    }
+    .topbar h1 {
+      font-family:var(--font-head); font-size:1.5rem; font-weight:700;
+      letter-spacing:.07em; color:var(--purple);
+      text-shadow:0 0 24px rgba(160,80,255,.35);
+    }
+    .topbar .breadcrumb {
+      font-family:var(--font-mono); font-size:.68rem; letter-spacing:.1em;
+      color:var(--text-muted);
+    }
+
+    /* shared */
+    .card { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:2rem; box-shadow:0 4px 40px rgba(0,0,0,.5); }
+    .card-header { font-family:var(--font-head); font-size:1.1rem; font-weight:700; letter-spacing:.08em; color:var(--purple); border-bottom:1px solid var(--border); padding-bottom:.75rem; margin-bottom:1.5rem; }
+    .form-group { margin-bottom:1.2rem; }
+    .form-group label { display:block; font-family:var(--font-mono); font-size:.72rem; letter-spacing:.1em; color:var(--text-muted); margin-bottom:.35rem; }
+    .form-control { width:100%; padding:.62rem 1rem; background:rgba(0,0,0,.4); color:var(--text-main); border:1px solid var(--border); border-radius:8px; font-family:var(--font-body); font-size:.88rem; transition:border-color .2s,box-shadow .2s; outline:none; }
+    .form-control:focus { border-color:#7030d0; box-shadow:0 0 0 3px rgba(112,48,208,.12); }
+    .btn { display:inline-flex; align-items:center; gap:.45rem; padding:.6rem 1.4rem; font-family:var(--font-head); font-size:.9rem; font-weight:600; letter-spacing:.07em; border-radius:8px; border:1px solid; cursor:pointer; text-decoration:none; transition:all .2s; }
+    .btn-primary { background:linear-gradient(135deg,rgba(0,180,255,.12),rgba(0,100,180,.12)); border-color:var(--border-glow); color:var(--accent); }
+    .btn-primary:hover { background:linear-gradient(135deg,rgba(0,180,255,.24),rgba(0,100,180,.24)); box-shadow:0 0 18px rgba(0,180,255,.2); }
+    .btn-danger { background:rgba(255,78,106,.08); border-color:var(--danger); color:var(--danger); }
+    .btn-danger:hover { background:rgba(255,78,106,.18); }
+    .btn-success { background:rgba(0,255,136,.06); border-color:var(--accent2); color:var(--accent2); }
+    .btn-success:hover { background:rgba(0,255,136,.16); }
+    .btn-purple { background:rgba(160,80,255,.1); border-color:#7030d0; color:var(--purple); }
+    .btn-purple:hover { background:rgba(160,80,255,.2); box-shadow:0 0 18px rgba(160,80,255,.2); }
+    .data-table { width:100%; border-collapse:collapse; font-size:.86rem; }
+    .data-table th { background:rgba(160,80,255,.06); color:var(--purple); font-family:var(--font-mono); font-size:.68rem; letter-spacing:.1em; padding:.72rem 1rem; text-align:left; border-bottom:1px solid #4a1a8c; }
+    .data-table td { padding:.68rem 1rem; border-bottom:1px solid rgba(26,58,92,.4); color:var(--text-main); }
+    .data-table tr:hover td { background:rgba(160,80,255,.03); }
+    .badge { padding:.2rem .65rem; border-radius:20px; font-family:var(--font-mono); font-size:.68rem; letter-spacing:.07em; font-weight:600; }
+    .badge-active  { background:rgba(0,255,136,.1); color:var(--accent2); border:1px solid var(--accent2); }
+    .badge-waiting { background:rgba(255,179,71,.1); color:var(--warning); border:1px solid var(--warning); }
+    .badge-inactive{ background:rgba(255,78,106,.1); color:var(--danger); border:1px solid var(--danger); }
+    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1.2rem; margin-bottom:2rem; }
+    .stat-card { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:1.3rem 1.5rem; position:relative; overflow:hidden; }
+    .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--purple),transparent); }
+    .stat-card .val { font-family:var(--font-head); font-size:2rem; font-weight:700; color:var(--purple); line-height:1; }
+    .stat-card .lbl { font-family:var(--font-mono); font-size:.66rem; letter-spacing:.1em; color:var(--text-muted); margin-top:.3rem; }
+    .messages { margin-bottom:1.5rem; }
+    .alert { padding:.7rem 1.1rem; border-radius:8px; font-family:var(--font-mono); font-size:.82rem; margin-bottom:.5rem; border:1px solid; }
+    .alert-success { background:rgba(0,255,136,.08); border-color:var(--accent2); color:var(--accent2); }
+    .alert-error,.alert-warning { background:rgba(255,78,106,.08); border-color:var(--danger); color:var(--danger); }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+    .animate-in { animation:fadeUp .4s ease forwards; }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="icon">🛡</div>
+      <div>
+        <span class="name">ADMIN</span>
+        <span class="role">CONTROL PANEL</span>
+      </div>
+    </div>
+    <p class="nav-section">MANAGEMENT</p>
+    <nav>
+      <a href="{% url 'AdminHome' %}" {% block nav_dash %}{% endblock %}>📊 Dashboard</a>
+      <a href="{% url 'ViewRegisteredUsers' %}" {% block nav_users %}{% endblock %}>👥 Registered Users</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="{% url 'UserLogin' %}">⏻ Logout</a>
+    </div>
+  </aside>
+
+  <div class="main-wrap">
+    {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

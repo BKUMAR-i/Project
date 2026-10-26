@@ -1,0 +1,167 @@
+{% extends 'users/userbase.html' %}
+{% block title %}Training Results — DentalAge AI{% endblock %}
+{% block nav_results %}class="active"{% endblock %}
+
+{% block extra_head %}
+<style>
+  .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+  @media(max-width:900px){ .results-grid{grid-template-columns:1fr;} }
+
+  /* ── Metric Banners ── */
+  .metrics-row { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+  .metric-banner {
+    flex: 1; min-width: 200px;
+    background: linear-gradient(135deg, rgba(0,255,136,.06), rgba(0,180,100,.04));
+    border: 1px solid var(--accent2); border-radius: 12px;
+    padding: 1.4rem 1.6rem; display: flex; align-items: center; gap: 1.2rem;
+  }
+  .metric-banner.auc-banner {
+    background: linear-gradient(135deg, rgba(0,180,255,.06), rgba(0,100,180,.04));
+    border-color: var(--border-glow);
+  }
+  .metric-banner .big {
+    font-family: var(--font-head); font-size: 2.8rem; font-weight: 700;
+    color: var(--accent2); line-height: 1;
+    text-shadow: 0 0 30px rgba(0,255,136,.4);
+  }
+  .auc-banner .big { color: var(--accent); text-shadow: 0 0 30px rgba(0,212,255,.4); }
+  .metric-banner .info h3 { font-family: var(--font-head); font-size: .9rem; font-weight: 700; letter-spacing: .08em; color: var(--accent2); }
+  .auc-banner .info h3 { color: var(--accent); }
+  .metric-banner .info p { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .07em; color: var(--text-muted); margin-top: .3rem; line-height: 1.6; }
+
+  /* ── Plot Cards ── */
+  .plot-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .plot-card .plot-head { padding: 1rem 1.4rem; border-bottom: 1px solid var(--border); font-family: var(--font-head); font-size: .95rem; font-weight: 700; letter-spacing: .07em; color: var(--accent); }
+  .plot-card img { width: 100%; display: block; }
+  .plot-card .no-plot { padding: 3rem; text-align: center; font-family: var(--font-mono); font-size: .75rem; color: var(--text-muted); letter-spacing: .1em; }
+
+  /* ── Tables ── */
+  .pred-table-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 2rem; }
+  .pred-table-wrap .th { padding: 1rem 1.4rem; border-bottom: 1px solid var(--border); font-family: var(--font-head); font-size: .95rem; font-weight: 700; letter-spacing: .07em; color: var(--accent2); }
+  .pred-table-wrap .tbl-scroll { overflow-x: auto; }
+  .pred-table-wrap table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+  .pred-table-wrap th { background: rgba(0,255,136,.05); color: var(--accent2); font-family: var(--font-mono); font-size: .65rem; letter-spacing: .1em; padding: .65rem 1rem; text-align: left; border-bottom: 1px solid rgba(0,255,136,.15); }
+  .pred-table-wrap td { padding: .62rem 1rem; border-bottom: 1px solid rgba(26,58,92,.35); color: var(--text-main); }
+  .pred-table-wrap tr:hover td { background: rgba(0,255,136,.03); }
+  .no-data { padding: 2.5rem; text-align: center; font-family: var(--font-mono); font-size: .75rem; color: var(--text-muted); letter-spacing: .1em; }
+
+  /* ── Report table accent ── */
+  .report-wrap .th { color: var(--accent); }
+  .report-wrap th { background: rgba(0,180,255,.05); color: var(--accent); border-bottom-color: rgba(0,180,255,.15); }
+  .report-wrap tr:hover td { background: rgba(0,180,255,.03); }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title animate-in">TRAINING RESULTS</h1>
+<p class="page-sub animate-in">MODEL PERFORMANCE · EFFICIENTNET BINARY CLASSIFIER · FORENSIC AGE DETECTION</p>
+
+<!-- ── Metric Banners ── -->
+{% if best_val_accuracy or test_accuracy or last_val_auc %}
+<div class="metrics-row animate-in">
+  {% if best_val_accuracy %}
+  <div class="metric-banner">
+    <div class="big">{{ best_val_accuracy_pct }}%</div>
+    <div class="info">
+      <h3>BEST VAL ACCURACY</h3>
+      <p>Highest validation accuracy reached during training.</p>
+    </div>
+  </div>
+  {% endif %}
+  {% if test_accuracy %}
+  <div class="metric-banner">
+    <div class="big">{{ test_accuracy_pct }}%</div>
+    <div class="info">
+      <h3>TEST ACCURACY</h3>
+      <p>Accuracy on the held-out classification report.</p>
+    </div>
+  </div>
+  {% endif %}
+  {% if last_val_auc %}
+  <div class="metric-banner auc-banner">
+    <div class="big">{{ last_val_auc_pct }}%</div>
+    <div class="info">
+      <h3>FINAL VAL AUC</h3>
+      <p>Area Under the ROC Curve.</p>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- ── Plot Grid ── -->
+<div class="results-grid">
+
+  <!-- Loss -->
+  <div class="plot-card animate-in" style="animation-delay:.1s;opacity:0">
+    <div class="plot-head">📉 LOSS CURVE</div>
+    {% if loss_plot %}
+    <img src="{{ loss_plot }}" alt="Loss Curve"/>
+    {% else %}
+    <div class="no-plot">NO LOSS DATA AVAILABLE<br/>RUN A TRAINING SESSION FIRST</div>
+    {% endif %}
+  </div>
+
+  <!-- Accuracy -->
+  <div class="plot-card animate-in" style="animation-delay:.15s;opacity:0">
+    <div class="plot-head">🎯 ACCURACY CURVE</div>
+    {% if accuracy_plot %}
+    <img src="{{ accuracy_plot }}" alt="Accuracy Curve"/>
+    {% else %}
+    <div class="no-plot">NO ACCURACY DATA AVAILABLE</div>
+    {% endif %}
+  </div>
+
+  <!-- AUC -->
+  <div class="plot-card animate-in" style="animation-delay:.2s;opacity:0">
+    <div class="plot-head">📈 AUC CURVE</div>
+    {% if auc_plot %}
+    <img src="{{ auc_plot }}" alt="AUC Curve"/>
+    {% else %}
+    <div class="no-plot">NO AUC DATA AVAILABLE</div>
+    {% endif %}
+  </div>
+
+  <!-- Precision -->
+  <div class="plot-card animate-in" style="animation-delay:.25s;opacity:0">
+    <div class="plot-head">🔍 PRECISION CURVE</div>
+    {% if precision_plot %}
+    <img src="{{ precision_plot }}" alt="Precision Curve"/>
+    {% else %}
+    <div class="no-plot">NO PRECISION DATA AVAILABLE</div>
+    {% endif %}
+  </div>
+
+  <!-- Recall (spans full width) -->
+  <div class="plot-card animate-in" style="animation-delay:.3s;opacity:0;grid-column:1/-1;">
+    <div class="plot-head">🔁 RECALL CURVE</div>
+    {% if recall_plot %}
+    <img src="{{ recall_plot }}" alt="Recall Curve" style="max-height:320px;object-fit:contain;margin:auto;display:block;width:auto;"/>
+    {% else %}
+    <div class="no-plot">NO RECALL DATA AVAILABLE</div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- ── Sample Predictions ── -->
+<div class="pred-table-wrap animate-in" style="animation-delay:.35s;opacity:0">
+  <div class="th">🔬 SAMPLE PREDICTIONS</div>
+  {% if pred_table %}
+  <div class="tbl-scroll">{{ pred_table|safe }}</div>
+  {% else %}
+  <div class="no-data">NO PREDICTION DATA AVAILABLE</div>
+  {% endif %}
+</div>
+
+<!-- ── Classification Report ── -->
+<div class="pred-table-wrap report-wrap animate-in" style="animation-delay:.4s;opacity:0">
+  <div class="th">📋 CLASSIFICATION REPORT (0 = Above or 12 age  & 1 = below 12)</div>
+  {% if report_table %}
+  <div class="tbl-scroll">{{ report_table|safe }}</div>
+  {% else %}
+  <div class="no-data">NO CLASSIFICATION REPORT AVAILABLE</div>
+  {% endif %}
+</div>
+
+{% endblock %}

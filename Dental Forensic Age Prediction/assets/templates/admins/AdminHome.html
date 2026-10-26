@@ -1,0 +1,73 @@
+{% extends 'admins/adminbase.html' %}
+{% block title %}Admin Dashboard — DentalAge AI{% endblock %}
+{% block nav_dash %}class="active"{% endblock %}
+
+{% block extra_head %}
+<style>
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1.2rem; margin-bottom: 2rem; }
+  .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem 1.6rem; position: relative; overflow: hidden; transition: border-color .2s; }
+  .stat-card:hover { border-color: #5020a0; }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--purple),transparent); }
+  .stat-card .val { font-family: var(--font-head); font-size: 2.8rem; font-weight: 700; color: var(--purple); line-height: 1; text-shadow: 0 0 20px rgba(160,80,255,.3); }
+  .stat-card .lbl { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .12em; color: var(--text-muted); margin-top: .35rem; }
+  .stat-card .icon { position: absolute; right: 1.2rem; top: 50%; transform: translateY(-50%); font-size: 2.5rem; opacity: .1; }
+
+  .recent-section { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media(max-width:900px){ .recent-section{grid-template-columns:1fr;} }
+
+  .sys-info-row { display:flex; justify-content:space-between; padding:.55rem 0; border-bottom:1px solid rgba(26,58,92,.4); font-size:.85rem; }
+  .sys-info-row:last-child { border-bottom:none; }
+  .sys-info-row .k { font-family:var(--font-mono); font-size:.7rem; color:var(--text-muted); letter-spacing:.08em; }
+  .online-dot { width:8px; height:8px; border-radius:50%; background:var(--accent2); box-shadow:0 0 8px var(--accent2); display:inline-block; margin-right:.4rem; animation:pulse 2s infinite; }
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="topbar animate-in">
+  <div>
+    <h1>ADMIN DASHBOARD</h1>
+    <p class="breadcrumb">FORENSIC DENTAL AGE SYSTEM &nbsp;›&nbsp; OVERVIEW</p>
+  </div>
+  <a href="{% url 'ViewRegisteredUsers' %}" class="btn btn-purple">👥 MANAGE USERS</a>
+</div>
+
+<div class="stats-grid animate-in">
+  <div class="stat-card">
+    <div class="val">{{ total_users }}</div>
+    <div class="lbl">TOTAL REGISTERED USERS</div>
+    <div class="icon">👥</div>
+  </div>
+  <div class="stat-card">
+    <div class="val" style="color:var(--accent2);text-shadow:0 0 20px rgba(0,255,136,.3)">{{ active_users }}</div>
+    <div class="lbl">ACTIVE USERS</div>
+    <div class="icon">✅</div>
+  </div>
+  <div class="stat-card">
+    <div class="val" style="color:var(--warning);text-shadow:0 0 20px rgba(255,179,71,.3)">{{ pending_approvals }}</div>
+    <div class="lbl">PENDING APPROVALS</div>
+    <div class="icon">⏳</div>
+  </div>
+</div>
+
+<div class="recent-section animate-in" style="animation-delay:.15s;opacity:0">
+  <div class="card">
+    <div class="card-header">🖥 SYSTEM STATUS</div>
+    <div class="sys-info-row"><span class="k">MODEL STATUS</span><span><span class="online-dot"></span>ONLINE</span></div>
+    <div class="sys-info-row"><span class="k">MODEL FILE</span><span>teeth_age_model.keras</span></div>
+    <div class="sys-info-row"><span class="k">ARCHITECTURE</span><span>Modified Xception</span></div>
+    <div class="sys-info-row"><span class="k">INPUT SIZE</span><span>224 × 224 px</span></div>
+    <div class="sys-info-row"><span class="k">AGE RANGE</span><span>9 – 19 Years</span></div>
+    <div class="sys-info-row"><span class="k">FRAMEWORK</span><span>TensorFlow / Keras</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">🔗 QUICK LINKS</div>
+    <div style="display:flex;flex-direction:column;gap:.8rem;margin-top:.5rem;">
+      <a href="{% url 'ViewRegisteredUsers' %}" class="btn btn-purple" style="justify-content:flex-start;">👥 View All Users</a>
+      <a href="{% url 'TrainingResults' %}" class="btn btn-primary" style="justify-content:flex-start;">📊 Training Results</a>
+      <a href="{% url 'PredictTeethAge' %}" class="btn btn-success" style="justify-content:flex-start;">🔬 Run Prediction</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

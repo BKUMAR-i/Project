@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}DentalAge AI — Forensic Estimation{% endblock %}
+{% block nav_home %}class="active"{% endblock %}
+
+{% block extra_head %}
+<style>
+  .hero {
+    min-height: 85vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 2rem;
+    position: relative;
+  }
+  .hero-eyebrow {
+    font-family: var(--font-mono); font-size: .72rem; letter-spacing: .25em;
+    color: var(--accent2); margin-bottom: 1.2rem;
+    display: inline-flex; align-items: center; gap: .5rem;
+  }
+  .hero-eyebrow::before, .hero-eyebrow::after {
+    content: ''; width: 30px; height: 1px; background: var(--accent2);
+  }
+  .hero-title {
+    font-family: var(--font-head); font-size: clamp(2.2rem, 5vw, 4.2rem);
+    font-weight: 700; line-height: 1.08; letter-spacing: .04em;
+    color: var(--text-main); max-width: 780px;
+  }
+  .hero-title em {
+    font-style: normal; color: var(--accent);
+    text-shadow: 0 0 40px rgba(0,212,255,.5);
+  }
+  .hero-sub {
+    font-family: var(--font-body); font-size: 1rem; color: var(--text-muted);
+    max-width: 560px; margin: 1.4rem auto 0; line-height: 1.7;
+  }
+  .hero-cta {
+    display: flex; gap: 1rem; margin-top: 2.5rem; flex-wrap: wrap; justify-content: center;
+  }
+
+  /* floating xray ring */
+  .xray-ring {
+    position: absolute; width: 520px; height: 520px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,180,255,.08);
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    animation: spin 30s linear infinite;
+    pointer-events: none;
+  }
+  .xray-ring::before {
+    content: ''; position: absolute; inset: 20px; border-radius: 50%;
+    border: 1px solid rgba(0,255,136,.05);
+  }
+  @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+
+  /* feature grid */
+  .features {
+    max-width: 1100px; margin: 0 auto; padding: 3rem 2rem;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+    gap: 1.5rem;
+  }
+  .feat-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.8rem;
+    transition: border-color .25s, transform .25s;
+    opacity: 0; animation: fadeUp .5s ease forwards;
+  }
+  .feat-card:hover { border-color: var(--border-glow); transform: translateY(-4px); }
+  .feat-card .icon {
+    font-size: 1.8rem; margin-bottom: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    width: 52px; height: 52px; border-radius: 12px;
+    background: linear-gradient(135deg, rgba(0,180,255,.1), rgba(0,100,180,.1));
+    border: 1px solid var(--border-glow);
+  }
+  .feat-card h3 {
+    font-family: var(--font-head); font-size: 1.05rem; font-weight: 700;
+    letter-spacing: .06em; color: var(--accent); margin-bottom: .6rem;
+  }
+  .feat-card p { font-size: .85rem; color: var(--text-muted); line-height: 1.65; }
+
+  .section-label {
+    text-align: center; padding: 2rem 2rem 0;
+    font-family: var(--font-mono); font-size: .7rem; letter-spacing: .2em;
+    color: var(--text-muted);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="xray-ring"></div>
+  <div class="hero-eyebrow">PANORAMIC X-RAY ANALYSIS</div>
+  <h1 class="hero-title animate-in">
+    Forensic Dental Age Estimation<br>Powered by <em>Deep Learning</em>
+  </h1>
+  <p class="hero-sub animate-in delay-1">
+    A modified Xception architecture trained on panoramic radiographs,
+    delivering precise age predictions for forensic and clinical applications.
+  </p>
+  <div class="hero-cta animate-in delay-2">
+    <a href="{% url 'UserLogin' %}" class="btn btn-primary">⚡ LAUNCH SYSTEM</a>
+    <a href="{% url 'UserRegisterForm' %}" class="btn btn-success">＋ CREATE ACCOUNT</a>
+  </div>
+</section>
+
+<p class="section-label">CORE CAPABILITIES</p>
+<div class="features">
+  <div class="feat-card delay-1">
+    <div class="icon">🦷</div>
+    <h3>PANORAMIC ANALYSIS</h3>
+    <p>Automated segmentation and feature extraction from dental panoramic X-ray images using deep convolutional layers.</p>
+  </div>
+  <div class="feat-card delay-2">
+    <div class="icon">🧠</div>
+    <h3>XCEPTION MODEL</h3>
+    <p>Modified Xception architecture with depthwise separable convolutions, fine-tuned for dental morphology and age regression.</p>
+  </div>
+  <div class="feat-card delay-3">
+    <div class="icon">📊</div>
+    <h3>MAE METRICS</h3>
+    <p>Real-time training curves and validation mean absolute error tracking to ensure model reliability and accuracy.</p>
+  </div>
+  <div class="feat-card" style="animation-delay:.4s">
+    <div class="icon">🔬</div>
+    <h3>FORENSIC GRADE</h3>
+    <p>Designed for medico-legal use cases: missing persons identification, disaster victim identification, and age estimation disputes.</p>
+  </div>
+</div>
+{% endblock %}

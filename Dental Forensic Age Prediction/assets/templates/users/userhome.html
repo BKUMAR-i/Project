@@ -1,0 +1,87 @@
+{% extends 'users/userbase.html' %}
+{% block title %}Dashboard — DentalAge AI{% endblock %}
+{% block nav_home %}class="active"{% endblock %}
+
+{% block extra_head %}
+<style>
+  .welcome-banner {
+    background: linear-gradient(135deg, rgba(0,180,255,.08), rgba(0,100,180,.05));
+    border: 1px solid var(--border-glow);
+    border-radius: 14px; padding: 2rem 2.2rem; margin-bottom: 2rem;
+    position: relative; overflow: hidden;
+  }
+  .welcome-banner::before {
+    content: '🦷'; position: absolute; right: 1.5rem; top: 50%;
+    transform: translateY(-50%); font-size: 5rem; opacity: .07;
+  }
+  .welcome-banner h2 {
+    font-family: var(--font-head); font-size: 1.6rem; font-weight: 700;
+    letter-spacing: .07em; color: var(--accent);
+    text-shadow: 0 0 20px rgba(0,212,255,.35);
+  }
+  .welcome-banner p {
+    font-family: var(--font-mono); font-size: .75rem; letter-spacing: .1em;
+    color: var(--text-muted); margin-top: .4rem;
+  }
+  .quick-actions {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+    gap: 1.2rem; margin-bottom: 2rem;
+  }
+  .qa-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.6rem 1.4rem;
+    text-decoration: none; transition: all .22s;
+    display: flex; flex-direction: column; gap: .6rem;
+  }
+  .qa-card:hover { border-color: var(--border-glow); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,.4); }
+  .qa-card .qa-icon { font-size: 1.6rem; }
+  .qa-card .qa-title { font-family: var(--font-head); font-size: 1rem; font-weight: 700; letter-spacing: .07em; color: var(--accent); }
+  .qa-card .qa-desc { font-family: var(--font-mono); font-size: .7rem; letter-spacing: .06em; color: var(--text-muted); line-height: 1.5; }
+  .info-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.8rem;
+  }
+  .info-card h3 { font-family: var(--font-head); font-size: 1rem; font-weight: 700; letter-spacing: .08em; color: var(--accent2); margin-bottom: .9rem; border-bottom: 1px solid var(--border); padding-bottom: .6rem; }
+  .info-row { display: flex; justify-content: space-between; align-items: center; padding: .5rem 0; border-bottom: 1px solid rgba(26,58,92,.4); font-size: .85rem; }
+  .info-row:last-child { border-bottom: none; }
+  .info-row .lbl { font-family: var(--font-mono); font-size: .72rem; color: var(--text-muted); letter-spacing: .07em; }
+  .info-row .val { color: var(--text-main); }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title animate-in">DASHBOARD</h1>
+<p class="page-sub animate-in">FORENSIC DENTAL AGE ESTIMATION SYSTEM</p>
+
+<div class="welcome-banner animate-in">
+  <h2>WELCOME, {{ request.session.loggeduser|upper }}</h2>
+  <p>SESSION ACTIVE &nbsp;·&nbsp; FORENSIC DENTAL AGE ESTIMATION PORTAL</p>
+</div>
+
+<div class="quick-actions">
+  <a href="{% url 'PredictTeethAge' %}" class="qa-card animate-in" style="animation-delay:.1s;opacity:0">
+    <span class="qa-icon">🔬</span>
+    <span class="qa-title">PREDICT AGE</span>
+    <span class="qa-desc">Upload a panoramic X-ray image and receive an instant age estimation.</span>
+  </a>
+  <a href="{% url 'TrainingResults' %}" class="qa-card animate-in" style="animation-delay:.2s;opacity:0">
+    <span class="qa-icon">📊</span>
+    <span class="qa-title">TRAINING RESULTS</span>
+    <span class="qa-desc">View MAE curves and sample prediction tables from model training.</span>
+  </a>
+  <a href="{% url 'TrainingResults' %}" class="qa-card animate-in" style="animation-delay:.3s;opacity:0">
+    <span class="qa-icon">⚙️</span>
+    <span class="qa-title">MODEL TRAINING</span>
+    <span class="qa-desc">Retrain or fine-tune the Xception model on new dental X-ray data.</span>
+  </a>
+</div>
+
+<div class="info-card animate-in" style="animation-delay:.4s;opacity:0">
+  <h3>ABOUT THE SYSTEM</h3>
+  <div class="info-row"><span class="lbl">MODEL</span><span class="val">Modified Xception (Depthwise Separable CNN)</span></div>
+  <div class="info-row"><span class="lbl">INPUT</span><span class="val">Panoramic Dental X-Ray (224 × 224 px)</span></div>
+  <div class="info-row"><span class="lbl">OUTPUT</span><span class="val">Estimated Age in Years (Regression)</span></div>
+  <div class="info-row"><span class="lbl">TRAINING RANGE</span><span class="val">9 – 19 Years</span></div>
+  <div class="info-row"><span class="lbl">APPLICATION</span><span class="val">Forensic Dentistry / Age Estimation</span></div>
+</div>
+{% endblock %}

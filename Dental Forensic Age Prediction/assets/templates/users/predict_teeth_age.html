@@ -1,0 +1,189 @@
+{% extends 'users/userbase.html' %}
+{% block title %}Predict Age — DentalAge AI{% endblock %}
+{% block nav_predict %}class="active"{% endblock %}
+
+{% block extra_head %}
+<style>
+  .predict-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media(max-width:800px){ .predict-grid{grid-template-columns:1fr;} }
+
+  .upload-zone {
+    border: 2px dashed var(--border-glow); border-radius: 14px;
+    padding: 2.5rem 1.5rem; text-align: center;
+    cursor: pointer; transition: all .22s; background: rgba(0,180,255,.03);
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--accent); background: rgba(0,180,255,.07);
+    box-shadow: 0 0 24px rgba(0,180,255,.12);
+  }
+  .upload-zone .uicon { font-size: 2.8rem; margin-bottom: .8rem; }
+  .upload-zone h3 { font-family: var(--font-head); font-size: 1rem; font-weight: 700; letter-spacing: .07em; color: var(--accent); }
+  .upload-zone p { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .08em; color: var(--text-muted); margin-top: .35rem; }
+  #fileInput { display: none; }
+
+  .preview-box {
+    border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+    background: rgba(0,0,0,.3); display: flex; align-items: center; justify-content: center;
+    min-height: 200px;
+  }
+  .preview-box img { max-width: 100%; max-height: 280px; object-fit: contain; }
+  .preview-box .no-img { font-family: var(--font-mono); font-size: .75rem; color: var(--text-muted); letter-spacing: .1em; }
+
+  /* ── Result Panel ── */
+  .result-panel {
+    background: linear-gradient(135deg, rgba(0,180,255,.06), rgba(0,100,180,.04));
+    border: 1px solid var(--border-glow); border-radius: 14px; padding: 2rem;
+    text-align: center;
+  }
+  .result-panel .result-badge {
+    display: inline-block;
+    font-family: var(--font-head); font-size: 2rem; font-weight: 700;
+    color: var(--accent); line-height: 1.2;
+    text-shadow: 0 0 40px rgba(0,212,255,.5);
+    padding: .4rem 1.2rem;
+    border: 2px solid var(--border-glow);
+    border-radius: 8px;
+    margin: .5rem 0 1rem;
+  }
+  .result-panel .interp {
+    font-family: var(--font-mono); font-size: .75rem; letter-spacing: .07em;
+    color: var(--text-main); line-height: 1.7; margin-top: .5rem;
+  }
+
+  /* ── Probability Bars ── */
+  .prob-section { margin-top: 1.4rem; text-align: left; }
+  .prob-section .prob-label {
+    display: flex; justify-content: space-between;
+    font-family: var(--font-mono); font-size: .65rem; letter-spacing: .1em;
+    color: var(--text-muted); margin-bottom: .35rem;
+  }
+  .prob-bar { height: 8px; background: rgba(0,180,255,.1); border-radius: 4px; overflow: hidden; margin-bottom: 1rem; }
+  .prob-fill-below  { height: 100%; background: linear-gradient(90deg, var(--border-glow), var(--accent)); border-radius: 4px; transition: width 1s ease; }
+  .prob-fill-above  { height: 100%; background: linear-gradient(90deg, rgba(0,255,136,.5), var(--accent2)); border-radius: 4px; transition: width 1s ease; }
+
+  /* ── Threshold chip ── */
+  .threshold-chip {
+    display: inline-block; margin-top: .8rem;
+    font-family: var(--font-mono); font-size: .65rem; letter-spacing: .1em;
+    color: var(--text-muted); background: rgba(0,180,255,.06);
+    border: 1px solid var(--border); border-radius: 20px; padding: .3rem .9rem;
+  }
+
+  /* ── Error box ── */
+  .error-box {
+    background: rgba(255,60,60,.07); border: 1px solid rgba(255,60,60,.3);
+    border-radius: 10px; padding: 1rem 1.2rem; margin-top: 1rem;
+  }
+  .error-box p { font-family: var(--font-mono); font-size: .72rem; color: #ff6b6b; letter-spacing: .07em; line-height: 1.6; }
+
+  .hint-box { background: rgba(255,179,71,.06); border: 1px solid rgba(255,179,71,.25); border-radius: 10px; padding: 1rem 1.2rem; margin-top: 1.5rem; }
+  .hint-box p { font-family: var(--font-mono); font-size: .72rem; color: var(--warning); letter-spacing: .07em; line-height: 1.6; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title animate-in">PREDICT DENTAL AGE</h1>
+<p class="page-sub animate-in">UPLOAD A PANORAMIC X-RAY — EFFICIENTNET BINARY CLASSIFIER</p>
+
+<form method="POST" enctype="multipart/form-data" id="predictForm">
+  {% csrf_token %}
+  <div class="predict-grid animate-in">
+
+    <!-- ── LEFT: Upload ── -->
+    <div>
+      <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <div class="uicon">🦷</div>
+        <h3>DROP X-RAY IMAGE HERE</h3>
+        <p>CLICK TO BROWSE &nbsp;·&nbsp; JPG / PNG / WEBP</p>
+        <input type="file" id="fileInput" name="xray" accept="image/*" onchange="previewFile(this)"/>
+      </div>
+
+      <div class="preview-box" style="margin-top:1rem;" id="previewBox">
+        {% if file_url %}
+          <img src="{{ file_url }}" alt="Uploaded X-Ray"/>
+        {% else %}
+          <span class="no-img">NO IMAGE LOADED</span>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="margin-top:1.2rem; width:100%; justify-content:center;">
+        ⚡ RUN ANALYSIS
+      </button>
+    </div>
+
+    <!-- ── RIGHT: Result ── -->
+    <div>
+      {% if error %}
+      <div class="error-box animate-in">
+        <p>⚠ {{ error }}</p>
+      </div>
+
+      {% elif result_label %}
+      <div class="result-panel animate-in">
+        <p style="font-family:var(--font-mono);font-size:.7rem;letter-spacing:.15em;color:var(--text-muted);margin-bottom:.5rem;">CLASSIFICATION RESULT</p>
+
+        <div class="result-badge">{{ result_label }}</div>
+
+        <p class="interp">{{ interpretation }}</p>
+
+        <!-- Probability Bars -->
+        <div class="prob-section">
+          <div class="prob-label">
+            <span>12 AND BELOW PROBABILITY</span>
+            <span>{{ below_12_probability }}</span>
+          </div>
+          <div class="prob-bar">
+            <div class="prob-fill-below" style="width:{{ below_12_probability|floatformat:0 }}%;"></div>
+          </div>
+
+          <div class="prob-label">
+            <span>12 AND ABOVE PROBABILITY</span>
+            <span>{{ age_12_and_above_probability }}</span>
+          </div>
+          <div class="prob-bar">
+            <div class="prob-fill-above" style="width:{{ age_12_and_above_probability|floatformat:0 }}%;"></div>
+          </div>
+        </div>
+
+        <div>
+          <span class="threshold-chip">RAW SCORE: {{ probability }} &nbsp;|&nbsp; THRESHOLD: {{ threshold }}</span>
+        </div>
+      </div>
+
+      {% else %}
+      <div class="card" style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;gap:1rem;text-align:center;">
+        <span style="font-size:3rem;opacity:.3;">📡</span>
+        <p style="font-family:var(--font-mono);font-size:.75rem;letter-spacing:.1em;color:var(--text-muted);">AWAITING X-RAY INPUT<br/>UPLOAD AN IMAGE AND CLICK RUN ANALYSIS</p>
+      </div>
+      {% endif %}
+
+      <div class="hint-box">
+        <p>⚠ FORENSIC NOTICE: Age estimations are for research and clinical guidance only. Results should be verified by a qualified forensic odontologist before use in legal proceedings.</p>
+      </div>
+    </div>
+
+  </div>
+</form>
+
+<script>
+function previewFile(input) {
+  const box = document.getElementById('previewBox');
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      box.innerHTML = `<img src="${e.target.result}" alt="Preview"/>`;
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+const zone = document.getElementById('dropZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', e => {
+  e.preventDefault(); zone.classList.remove('drag-over');
+  const fi = document.getElementById('fileInput');
+  fi.files = e.dataTransfer.files;
+  previewFile(fi);
+});
+</script>
+{% endblock %}

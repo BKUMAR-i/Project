@@ -1,0 +1,110 @@
+{% extends 'admins/adminbase.html' %}
+{% block title %}Registered Users — DentalAge AI{% endblock %}
+{% block nav_users %}class="active"{% endblock %}
+
+{% block extra_head %}
+<style>
+  .toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;
+  }
+  .search-box {
+    display: flex; align-items: center; gap: .6rem;
+    background: rgba(0,0,0,.4); border: 1px solid var(--border);
+    border-radius: 8px; padding: .45rem .9rem;
+    transition: border-color .2s;
+  }
+  .search-box:focus-within { border-color: var(--border-glow); }
+  .search-box input {
+    background: none; border: none; outline: none;
+    color: var(--text-main); font-family: var(--font-mono); font-size: .8rem;
+    width: 220px; letter-spacing: .06em;
+  }
+  .search-box input::placeholder { color: var(--text-muted); }
+
+  .table-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .table-scroll { overflow-x: auto; }
+  .action-btns { display: flex; gap: .4rem; }
+  .btn-sm { padding: .28rem .7rem; font-size: .75rem; }
+
+  .empty-state { padding: 3rem; text-align: center; }
+  .empty-state p { font-family: var(--font-mono); font-size: .75rem; letter-spacing: .1em; color: var(--text-muted); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="topbar animate-in">
+  <div>
+    <h1>REGISTERED USERS</h1>
+    <p class="breadcrumb">ADMIN PANEL &nbsp;›&nbsp; USER MANAGEMENT</p>
+  </div>
+</div>
+
+<div class="toolbar animate-in">
+  <div class="search-box">
+    <span style="color:var(--text-muted);">🔍</span>
+    <input type="text" id="searchInput" placeholder="SEARCH USERS ..." onkeyup="filterTable()"/>
+  </div>
+  <div style="font-family:var(--font-mono);font-size:.7rem;color:var(--text-muted);letter-spacing:.1em;">
+    TOTAL: <span style="color:var(--purple);">{{ data|length }}</span> USERS
+  </div>
+</div>
+
+<div class="table-wrap animate-in" style="animation-delay:.1s;opacity:0">
+  <div class="table-scroll">
+    <table class="data-table" id="usersTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>USERNAME</th>
+          <th>LOGIN ID</th>
+          <th>EMAIL</th>
+          <th>MOBILE</th>
+          <th>STATUS</th>
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in data %}
+        <tr>
+          <td style="color:var(--text-muted);font-family:var(--font-mono);font-size:.75rem;">{{ forloop.counter }}</td>
+          <td style="font-weight:600;">{{ user.Username }}</td>
+          <td style="font-family:var(--font-mono);font-size:.8rem;">{{ user.loginid }}</td>
+          <td style="font-family:var(--font-mono);font-size:.78rem;color:var(--text-muted);">{{ user.email }}</td>
+          <td style="font-family:var(--font-mono);font-size:.78rem;">{{ user.mobile }}</td>
+          <td>
+            {% if user.status == 'activated' %}
+            <span class="badge badge-active">ACTIVE</span>
+            {% elif user.status == 'waiting' %}
+            <span class="badge badge-waiting">PENDING</span>
+            {% else %}
+            <span class="badge badge-inactive">{{ user.status|upper }}</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="action-btns">
+              {% if user.status != 'activated' %}
+              <a href="{% url 'AdminActivaUsers' %}?uid={{ user.id }}" class="btn btn-success btn-sm">✓ ACTIVATE</a>
+              {% endif %}
+              <a href="{% url 'DeleteUsers' %}?uid={{ user.id }}" class="btn btn-danger btn-sm"
+                 onclick="return confirm('Delete user {{ user.Username }}?')">✕ DELETE</a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="empty-state"><p>NO USERS REGISTERED YET</p></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+function filterTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  document.querySelectorAll('#usersTable tbody tr').forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}

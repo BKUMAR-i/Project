@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Please Login — DentalAge AI{% endblock %}
+
+{% block content %}
+<div style="min-height:70vh; display:flex; align-items:center; justify-content:center; padding:2rem;">
+  <div class="card animate-in" style="max-width:440px; text-align:center;">
+    <div style="font-size:3.5rem; margin-bottom:1rem;">🔐</div>
+    <h2 style="font-family:var(--font-head); font-size:1.5rem; color:var(--accent); letter-spacing:.08em; margin-bottom:.6rem;">ACCESS RESTRICTED</h2>
+    <p style="font-family:var(--font-mono); font-size:.8rem; color:var(--text-muted); line-height:1.7; margin-bottom:1.8rem;">
+      You must be logged in to access this section of the Forensic Dental Age Estimation System.
+    </p>
+    <a href="{% url 'UserLogin' %}" class="btn btn-primary" style="margin: 0 auto;">⚡ SIGN IN NOW</a>
+    <p style="font-family:var(--font-mono); font-size:.72rem; color:var(--text-muted); margin-top:1rem;">
+      No account? <a href="{% url 'UserRegisterForm' %}" style="color:var(--accent2);">REGISTER</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

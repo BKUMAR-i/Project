@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Register — DentalAge AI{% endblock %}
+{% block nav_register %}class="active"{% endblock %}
+
+{% block extra_head %}
+<style>
+  .auth-wrap {
+    min-height: 80vh; display: flex;
+    align-items: center; justify-content: center; padding: 2rem;
+  }
+  .auth-box {
+    width: 100%; max-width: 500px;
+    background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: 16px;
+    padding: 2.5rem 2.2rem;
+    box-shadow: 0 8px 60px rgba(0,0,0,.6);
+    animation: fadeUp .45s ease forwards;
+  }
+  .auth-logo {
+    text-align: center; margin-bottom: 2rem;
+  }
+  .auth-logo .ring {
+    width: 68px; height: 68px; border-radius: 50%;
+    background: linear-gradient(135deg, rgba(0,255,136,.1), rgba(0,180,100,.1));
+    border: 1px solid var(--accent2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem; margin: 0 auto .9rem;
+    box-shadow: 0 0 24px rgba(0,255,136,.15);
+  }
+  .auth-logo h2 {
+    font-family: var(--font-head); font-size: 1.4rem; font-weight: 700;
+    letter-spacing: .1em; color: var(--accent2);
+  }
+  .auth-logo p {
+    font-family: var(--font-mono); font-size: .68rem; letter-spacing: .14em;
+    color: var(--text-muted); margin-top: .2rem;
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .errorlist { list-style: none; margin-top: .35rem; }
+  .errorlist li {
+    font-family: var(--font-mono); font-size: .72rem; color: var(--danger);
+  }
+  .auth-footer {
+    text-align: center; margin-top: 1.4rem;
+    font-family: var(--font-mono); font-size: .75rem; color: var(--text-muted);
+  }
+  .auth-footer a { color: var(--accent); text-decoration: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="ring">＋</div>
+      <h2>NEW ACCOUNT</h2>
+      <p>REGISTER FOR SYSTEM ACCESS</p>
+    </div>
+    <form method="POST" action="{% url 'UserRegisterActions' %}">
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="form-group">
+        <label>{{ field.label|upper }}</label>
+        {{ field }}
+        {% if field.errors %}<ul class="errorlist">{% for e in field.errors %}<li>⚠ {{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-success" style="width:100%; justify-content:center; margin-top:.5rem;">
+        ＋ CREATE ACCOUNT
+      </button>
+    </form>
+    <div class="auth-footer" style="margin-top:1rem;">
+      Already registered? <a href="{% url 'UserLogin' %}">SIGN IN</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* style Django form fields */
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    el.classList.add('form-control');
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}User Login — DentalAge AI{% endblock %}
+{% block nav_user %}class="active"{% endblock %}
+
+{% block extra_head %}
+<style>
+  .auth-wrap {
+    min-height: 80vh; display: flex;
+    align-items: center; justify-content: center; padding: 2rem;
+  }
+  .auth-box {
+    width: 100%; max-width: 420px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem 2.2rem;
+    box-shadow: 0 8px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(0,180,255,.04);
+    animation: fadeUp .45s ease forwards;
+  }
+  .auth-logo {
+    text-align: center; margin-bottom: 2rem;
+  }
+  .auth-logo .ring {
+    width: 68px; height: 68px; border-radius: 50%;
+    background: linear-gradient(135deg, rgba(0,180,255,.12), rgba(0,100,180,.12));
+    border: 1px solid var(--border-glow);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem; margin: 0 auto .9rem;
+    box-shadow: 0 0 24px rgba(0,180,255,.2);
+  }
+  .auth-logo h2 {
+    font-family: var(--font-head); font-size: 1.4rem; font-weight: 700;
+    letter-spacing: .1em; color: var(--accent);
+  }
+  .auth-logo p {
+    font-family: var(--font-mono); font-size: .68rem; letter-spacing: .14em;
+    color: var(--text-muted); margin-top: .2rem;
+  }
+  .input-icon { position: relative; }
+  .input-icon span {
+    position: absolute; left: .9rem; top: 50%; transform: translateY(-50%);
+    font-size: .95rem; pointer-events: none;
+  }
+  .input-icon .form-control { padding-left: 2.5rem; }
+  .auth-footer {
+    text-align: center; margin-top: 1.4rem;
+    font-family: var(--font-mono); font-size: .75rem; color: var(--text-muted);
+  }
+  .auth-footer a { color: var(--accent); text-decoration: none; }
+  .auth-footer a:hover { text-shadow: 0 0 10px rgba(0,212,255,.4); }
+  .divider {
+    border: none; border-top: 1px solid var(--border); margin: 1.5rem 0;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="ring">🦷</div>
+      <h2>USER ACCESS</h2>
+      <p>FORENSIC DENTAL AGE SYSTEM</p>
+    </div>
+    <form method="POST" action="{% url 'UserLoginCheck' %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>LOGIN ID</label>
+        <div class="input-icon">
+          <span>👤</span>
+          <input type="text" name="loginid" class="form-control" placeholder="Enter your login ID" required/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>PASSWORD</label>
+        <div class="input-icon">
+          <span>🔒</span>
+          <input type="password" name="password" class="form-control" placeholder="••••••••" required/>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:.5rem;">
+        ⚡ SIGN IN
+      </button>
+    </form>
+    <hr class="divider"/>
+    <div class="auth-footer">
+      No account? <a href="{% url 'UserRegisterForm' %}">REGISTER HERE</a>
+      &nbsp;·&nbsp;
+      <a href="{% url 'AdminLogin' %}">ADMIN LOGIN</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
